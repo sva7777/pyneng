@@ -16,3 +16,8 @@
 """
 
 mac = "AAAA:BBBB:CCCC"
+mac_split= mac.split(":")
+mac1=bin(int(mac_split[0],16))
+mac2=bin(int(mac_split[1],16))
+mac3=bin(int(mac_split[2],16))
+print(("{}{}{}".format(mac1,mac2,mac3) ).replace("0b",""))
