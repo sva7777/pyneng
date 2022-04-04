@@ -49,3 +49,7 @@ london_co = {
         "routing": True,
     },
 }
+
+selected_device = input("Введите имя устройства: ")
+selected_parameter = input("Введите имя параметра {}: ".format( tuple( london_co[selected_device].keys() )) )
+print(  london_co[selected_device].get(selected_parameter, "Такого параметра нет" )   )
