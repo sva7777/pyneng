@@ -49,3 +49,46 @@ bin_ip = "00001010000000010000000111000011"
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+address = input("введите IPv4-сеть в формате 10.1.1.0/24 :")
+ip_address, net_mask = address.split("/")
+ip = ip_address.split(".")
+ip_bin = "{:08b}{:08b}{:08b}{:08b}".format(int(ip[0]),int(ip[1]),int(ip[2]),int(ip[3]))
+mask_bin = "1"*int(net_mask)+"0"*(32-int(net_mask))
+
+network_ip = int(ip_bin,2)& int (mask_bin,2)
+network_ip = "{:032b}".format(network_ip)
+
+bulk = '''
+Network:
+{:10}{:10}{:10}{:10}
+{:10}{:10}{:10}{:10}'''
+
+ip_a = network_ip[0:8]
+ip_b = network_ip[8:16]
+ip_c = network_ip[16:24]
+ip_d = network_ip[24:32]
+print(bulk.format( str(int(ip_a,2)), str(int(ip_b,2)), str(int(ip_c,2)), str(int(ip_d,2)), ip_a, ip_b, ip_c, ip_d ) )
+
+bulk_mask = '''
+Mask:
+/{}
+{:10}{:10}{:10}{:10}
+{:10}{:10}{:10}{:10}'''
+
+bin_mask_a = mask_bin[0:8]
+bin_mask_b = mask_bin[8:16]
+bin_mask_c = mask_bin[16:24]
+bin_mask_d = mask_bin[24:32]
+print(bulk_mask.format(net_mask, str(int(bin_mask_a,2)), str(int(bin_mask_b,2)), str(int(bin_mask_c,2)), str(int(bin_mask_d,2)), bin_mask_a, bin_mask_b, bin_mask_c, bin_mask_d ) )
+
+
+
+
+
+
+
+
+
+
+
+
