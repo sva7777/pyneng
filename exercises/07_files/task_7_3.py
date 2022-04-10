@@ -20,3 +20,8 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+with open("/home/vasily/pyneng/exercises/07_files/CAM_table.txt","r") as file:
+    for line in file:
+        line_dict = line.split();
+        if len(line_dict) == 4 and line_dict[0].isdigit():
+            print("{:10}{:20}{}".format(line_dict[0], line_dict[1], line_dict[3] ) )
