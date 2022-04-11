@@ -25,3 +25,46 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+
+def get_int_vlan_map(config_filename):
+    access_dict= dict()
+    trunk_dict= dict()
+    
+    with open(config_filename, "r") as file:
+        intf =""
+        is_mode_trunk= None
+        access_vlan = None
+        trunk_vlans = list()
+
+        for line in file:
+            if line.startswith("interface"):
+                intf= line.split()[1]
+            elif line.startswith(" switchport mode access"):
+                is_mode_trunk = False
+            elif line.startswith(" switchport mode trunk"):
+                is_mode_trunk = True
+            elif line.startswith(" switchport access vlan"):
+                access_vlan = int(line.split()[3])
+            elif line.startswith(" switchport trunk allowed"):
+                vlans_str= line.split()[4]
+                trunk_vlans = [int(i) for i in vlans_str.split(",")]
+            elif line.startswith("!"):
+                if intf:
+                    if is_mode_trunk:
+                        trunk_dict[intf] =trunk_vlans
+                    elif is_mode_trunk == False:
+                        if access_vlan:
+                            access_dict[intf] = access_vlan 
+                        else:
+                            access_dict[intf] = 1 
+                intf =""
+                is_mode_trunk= None
+                access_vlan = None
+                trunk_vlans = list()
+        return access_dict, trunk_dict
+    
+    
+
+access, trunk = get_int_vlan_map("/home/vasily/pyneng/exercises/09_functions/config_sw2.txt")
+print(access)
+print(trunk)
