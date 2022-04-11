@@ -64,3 +64,30 @@ def ignore_command(command, ignore):
         if word in command:
             ignore_status = True
     return ignore_status
+
+def convert_config_to_dict(config_filename):
+    res_dict = dict()
+    with open(config_filename,"r") as file:
+        res_list= list()
+        key = ""
+        for line in file:
+            if line == "\n":
+                pass
+            elif len(line) ==0:
+                pass
+            elif line.startswith("!"):
+                pass
+            elif ignore_command(line, ignore):
+                pass
+            elif line.startswith(" "):
+                res_dict[key].append(line.strip().replace("\n",""))
+                res_list.append(line)
+            else:
+                key = line.replace("\n","")
+                res_dict[key] = []
+    return res_dict
+    
+
+res_dict = convert_config_to_dict("/home/vasily/pyneng/exercises/09_functions/config_sw1.txt")
+print(res_dict)
+    
