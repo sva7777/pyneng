@@ -74,9 +74,31 @@
 
 """
 
+from task_11_2 import create_network_map
+from pprint import pprint
+from draw_network_graph import draw_topology
+
+
 infiles = [
-    "sh_cdp_n_sw1.txt",
-    "sh_cdp_n_r1.txt",
-    "sh_cdp_n_r2.txt",
-    "sh_cdp_n_r3.txt",
+    "/home/vasily/pyneng/exercises/11_modules/sh_cdp_n_sw1.txt",
+    "/home/vasily/pyneng/exercises/11_modules/sh_cdp_n_r1.txt",
+    "/home/vasily/pyneng/exercises/11_modules/sh_cdp_n_r2.txt",
+    "/home/vasily/pyneng/exercises/11_modules/sh_cdp_n_r3.txt",
 ]
+
+def main_function(params):
+    not_uniq = create_network_map(params)
+    uniq = unique_network_map(not_uniq)
+    draw_topology(uniq,"/home/vasily/pyneng/exercises/11_modules/task_11_2a_topology.svg")
+
+def unique_network_map (topology_dict):
+    res = dict ()
+    
+    for key,value in topology_dict.items():
+        if not ( value in res) :
+            res[key]=value
+    pprint(res) 
+    return res
+
+if __name__ == "__main__":
+    main_function(infiles)

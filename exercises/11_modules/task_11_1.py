@@ -43,8 +43,24 @@ def parse_cdp_neighbors(command_output):
     и с файлами и с выводом с оборудования.
     Плюс учимся работать с таким выводом.
     """
+    device_name = ""
+    start_parse = False
+    res = dict()
+    
+    lines = command_output.split("\n")
+    for line in lines:
+        if "show cdp neighbors" in line:
+           device_name = line.split(">")[0] 
+        elif "Device ID" in line:
+            start_parse = True
+        elif start_parse and len(line)>10:
+            device,eth, eth_id , *other, port, port_id   = line.split()
+            res[(device_name, eth+eth_id)] = (device, port+port_id)
+            
+            
+    return res
 
 
 if __name__ == "__main__":
-    with open("sh_cdp_n_sw1.txt") as f:
+    with open("/home/vasily/pyneng/exercises/11_modules/sh_cdp_n_sw1.txt") as f:
         print(parse_cdp_neighbors(f.read()))
