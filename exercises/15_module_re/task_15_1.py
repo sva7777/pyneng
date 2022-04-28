@@ -23,3 +23,19 @@
 а не ввод пользователя.
 
 """
+import re
+def get_ip_from_cfg (filename):
+    res = list()
+    re_comp= re.compile(r"\s+ip address (\S+) (\S+)")
+    with open("/home/vasily/pyneng/exercises/15_module_re/"+filename, "r") as f:
+        file_context = f.read()
+        for line in file_context.split("\n"):
+            match_re = re.match(re_comp, line)
+            if match_re:
+                res.append( (match_re.group(1), match_re.group(2)) )  
+    return res
+
+res = get_ip_from_cfg("config_r1.txt")
+print(res)
+
+    

@@ -24,3 +24,20 @@
 а не ввод пользователя.
 
 """
+
+import re
+def get_ip_from_cfg (filename):
+    res= dict()
+    r_string= (r"interface (\S+)\n"
+              r"( .*\n)*"
+              r" ip address (\S+) (\S+)"
+              )
+    
+    re_comp= re.compile(r_string)
+    with open("/home/vasily/pyneng/exercises/15_module_re/"+filename, "r") as f:
+        for m in re.finditer(re_comp, f.read() ):
+            res[m.group(1)] = (m.group(3), m.group(4))
+    return res
+
+res = get_ip_from_cfg("config_r1.txt")
+print(res)
