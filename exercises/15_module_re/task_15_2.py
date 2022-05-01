@@ -21,3 +21,17 @@
 Проверить работу функции на примере файла sh_ip_int_br.txt.
 
 """
+import re
+from pprint import pprint
+
+def parse_sh_ip_int_br(filename):
+    res = list()
+    r_string= r"(\S+) +(\S+) +\w+ \w+ +(administratively down|up|down) +(up|down)"
+    re_comp= re.compile(r_string)
+              
+    with open("/home/vasily/pyneng/exercises/15_module_re/"+filename, "r") as f:
+        for m in re.finditer(re_comp, f.read() ):
+            res.append (m.groups())
+    return res
+res = parse_sh_ip_int_br("sh_ip_int_br.txt")
+pprint(res)
