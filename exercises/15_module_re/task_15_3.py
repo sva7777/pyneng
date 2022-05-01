@@ -32,3 +32,8 @@ object network LOCAL_10.1.9.5
 
 Во всех правилах для ASA интерфейсы будут одинаковыми (inside,outside).
 """
+def convert_ios_nat_to_asa(cisco_nat_file_name_in, asa_nat_file_name_out):
+    pass
+
+
+convert_ios_nat_to_asa("cisco_nat_config.txt","asa_nat_config.txt")
