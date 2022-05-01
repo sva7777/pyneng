@@ -24,3 +24,30 @@ interface Loopback0
 
 Проверить работу функции на примере файла config_r1.txt.
 """
+import re
+from pprint import pprint
+
+def get_ints_without_description(file_name):
+    all_interfaces = set()
+    description_interfaces = set() 
+    
+    re_all_string= r"^interface (\S+)\n"
+    re_description_string= r"^interface (\S+)\n description"
+    
+    re_all_comp = re.compile(re_all_string, re.MULTILINE)
+    re_description_comp = re.compile(re_description_string, re.MULTILINE)
+    
+    
+    with open("/home/vasily/pyneng/exercises/15_module_re/"+file_name, "r") as f:
+        for m in re.finditer(re_all_comp, f.read() ):
+            all_interfaces.add(m.group(1))
+    
+    
+    with open("/home/vasily/pyneng/exercises/15_module_re/"+file_name, "r") as f:
+        for m in re.finditer(re_description_comp, f.read() ):
+            description_interfaces.add(m.group(1))
+    
+    return list(all_interfaces.difference(description_interfaces) )    
+
+res = get_ints_without_description("config_r1.txt")
+pprint(res)

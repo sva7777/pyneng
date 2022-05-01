@@ -26,3 +26,16 @@ description Connected to SW1 port Eth 0/1
 
 Проверить работу функции на файле sh_cdp_n_sw1.txt.
 """
+import re 
+def generate_description_from_cdp(file_name):
+    res = dict()
+    
+    re_string= r"(\S+) *(Eth \d+/\d+).*(Eth \d+/\d+)"
+    re_comp = re.compile(re_string)
+    
+    with open("/home/vasily/pyneng/exercises/15_module_re/"+file_name, "r") as f:
+        for m in re.finditer(re_comp, f.read() ):
+            res[m.group(2)] = "description Connected to {0} port {1}".format(m.group(1), m.group(3) )
+    return res
+res = generate_description_from_cdp("sh_cdp_n_sw1.txt")
+print(res)
