@@ -44,8 +44,44 @@
 """
 
 import glob
+import re 
+import csv
 
-sh_version_files = glob.glob("sh_vers*")
+
+sh_version_files = glob.glob("/home/vasily/pyneng/exercises/17_serialization/sh_vers*")
 # print(sh_version_files)
 
 headers = ["hostname", "ios", "image", "uptime"]
+
+def parse_sh_version(input_context):
+    r_string= (r"Cisco IOS .*?Version (?P<version>\S+), .*"
+                "router uptime is (?P<uptime>[\w ,]+)\n.*"
+                'image file is "(?P<image>\S+)".*'
+                )
+    
+    match = re.search(r_string, input_context, re.DOTALL)
+    if match:
+        return match.group("version","image","uptime")
+    
+    
+    
+def write_inventory_to_csv(data_filenames, csv_filename):
+    full_res = [headers]
+        
+    
+    for filename in data_filenames:
+        r_string = r"sh_version_(\S+).txt"
+        match = re.search(r_string, filename)
+        device_name= match.group(1)
+        
+        with open(filename,"r") as f:
+            file_context = f.read()
+            version,image,uptime= parse_sh_version(file_context)    
+            full_res.append( [device_name,  version, image, uptime ] ) 
+            
+    with open(csv_filename, "w") as f:
+        wr = csv.writer(f)
+        wr.writerows(full_res)
+    
+
+write_inventory_to_csv(sh_version_files, "test.txt")
