@@ -43,3 +43,26 @@
 > pip install graphviz
 
 """
+import yaml
+from pprint import pprint
+from draw_network_graph import draw_topology
+
+
+def transform_topology(yaml_file_name):
+    res = dict()
+    with open(yaml_file_name, "r") as f:
+        context =yaml.safe_load(f)
+
+    for device, hi_item in context.items():
+        for local_int, item in hi_item.items():
+            (rem_dev,rem_int), = item.items()
+            
+            
+            if (rem_dev, rem_int) in res:
+                if res[(rem_dev, rem_int)] == (device, local_int):
+                    continue
+            res[(device,local_int)] = (rem_dev, rem_int)
+    draw_topology(res,"topology.svg")
+    return res
+
+transform_topology("/home/vasily/pyneng/exercises/17_serialization/"+"topology.yaml")

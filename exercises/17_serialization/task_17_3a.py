@@ -85,4 +85,4 @@ files_list = {"sh_cdp_n_sw1.txt",
               "sh_cdp_n_r5.txt",
               "sh_cdp_n_r6.txt"}
 
-generate_topology_from_cdp(files_list, "/home/vasily/pyneng/exercises/17_serialization/test.txt")
+generate_topology_from_cdp(files_list)
