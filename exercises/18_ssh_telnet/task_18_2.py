@@ -45,4 +45,30 @@ R1#
 с помощью функции send_config_commands.
 """
 
+import yaml
+import netmiko
+
 commands = ["logging 10.255.255.1", "logging buffered 20010", "no logging console"]
+
+
+def send_config_commands(device, config_commands):
+    result = None
+    try: 
+        with netmiko.ConnectHandler(**device) as ssh:
+                ssh.enable()
+                result = ssh.send_config_set(config_commands)
+    except netmiko.exceptions.NetmikoAuthenticationException as exe:
+            # I use telnet, not ssh. I don't wanna spend my time and setup encription profiles for old Cisco images
+        print(exe)
+    except netmiko.exceptions.NetmikoTimeoutException as exe:
+        print(exe)
+    
+    return result
+
+
+if __name__ == "__main__":
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+
+    for dev in devices:
+        print(send_config_commands(dev, commands))
