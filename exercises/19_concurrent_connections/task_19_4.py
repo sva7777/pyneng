@@ -105,3 +105,56 @@ R3#
 
 Для выполнения задания можно создавать любые дополнительные функции.
 """
+import yaml
+import logging
+import netmiko
+import itertools
+from pprint import pprint
+from concurrent.futures import ThreadPoolExecutor
+
+def exec_command(device, command):
+    with netmiko.ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_command(command, strip_command=False)
+        prompt = ssh.find_prompt()
+        
+    return  f"{prompt}{result}\n"
+
+
+def exec_config_commands(device, commands):
+    with netmiko.ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_config_set(commands, strip_command=False)
+        prompt = ssh.find_prompt()
+        
+    return  f"{prompt}{result}\n"
+
+
+def send_commands_to_devices (devices, filename, * ,show = None, config = None, limit =3):
+    if show and config:
+        raise ValueError()
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        future_list = list()
+        for device in devices:
+            if show:
+                future = executor.submit(exec_command, device, show)
+                future_list.append(future)
+            
+            if config:
+                future = executor.submit(exec_config_commands, device, config)
+                future_list.append(future)
+                
+        
+        with open(filename, "w") as f:
+            for res  in future_list:
+                #print(res.result() )
+                f.write(res.result())
+
+
+
+if __name__ == "__main__":
+    ip_s= list()
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+
+    send_commands_to_devices(devices, "test.txt", "show clock")
