@@ -37,6 +37,11 @@
 интерфейсов, но при этом не проверяет настроенные номера тунелей и другие команды.
 Они должны быть, но тест упрощен, чтобы было больше свободы выполнения.
 """
+import re
+import yaml
+import netmiko
+from task_20_5 import create_vpn_config
+from pprint import pprint
 
 data = {
     "tun_num": None,
@@ -45,3 +50,50 @@ data = {
     "tun_ip_1": "10.0.1.1 255.255.255.252",
     "tun_ip_2": "10.0.1.2 255.255.255.252",
 }
+
+def get_free_tunnel_number (src, dst):
+    nums = [int(num) for num in re.findall(r"Tunnel(\d+)", src + dst)]
+    if not nums:
+        return 0
+    diff = set(range(min(nums), max(nums) + 1)) - set(nums)
+    if diff:
+        return min(diff)
+    else:
+        return max(nums) + 1
+    
+
+def configure_vpn(src_device_params , dst_device_params, src_template, dst_template, vpn_data_dict):
+    pprint(src_device_params)
+    with netmiko.ConnectHandler(**src_device_params) as ssh1, netmiko.ConnectHandler(**dst_device_params) as ssh2:
+        ssh1.enable()
+        ssh2.enable()
+        src_tunnels_output = ssh1.send_command("sh run | include ^interface Tunnel")
+        dst_tunnels_output = ssh2.send_command("sh run | include ^interface Tunnel")
+        tun_num = get_free_tunnel_number(src_tunnels_output, dst_tunnels_output)
+        vpn_data_dict["tun_num"] = tun_num
+        
+        vpn1, vpn2 = create_vpn_config(src_template, dst_template, vpn_data_dict)
+        
+        temp1 = vpn1.split("\n")
+        temp2 = vpn2.split("\n")
+        
+        temp1 = list (filter( lambda x: len(x)>0 , temp1))
+        temp2 = list (filter( lambda x: len(x)>0 , temp2))
+
+        
+        pprint(temp1)
+        pprint(temp2)
+        
+        output1 = ssh1.send_config_set(temp1) 
+        output2 = ssh2.send_config_set(temp2)
+        
+    return output1, output2
+if __name__ == "__main__":
+    
+    template1_file = "templates/gre_ipsec_vpn_1.txt"
+    template2_file = "templates/gre_ipsec_vpn_2.txt"
+    
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+    
+    pprint(configure_vpn(devices[0], devices[1], template1_file, template2_file, data) )

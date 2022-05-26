@@ -19,6 +19,20 @@
 
 """
 import yaml
+from jinja2 import Environment, FileSystemLoader
+import os
+
+def generate_config(template, data_dict):
+    path = os.path.dirname(template)
+    temp_name = os.path.basename(template)
+    env = Environment(loader = FileSystemLoader(path))
+        
+    templ= env.get_template(temp_name)
+    
+    result = templ.render(data_dict)
+    return result
+    
+
 
 # так должен выглядеть вызов функции
 if __name__ == "__main__":

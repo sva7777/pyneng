@@ -1,0 +1,11 @@
+vlan {{vlan_id}}
+name {{name}}
+{% for acc in access %}
+interface {{acc}}
+ switchport mode access
+ switchport access vlan {{vlan_id}}
+{% endfor %}
+{% for tr in trunk %}
+interface {{tr}}
+ switchport trunk allowed vlan add {{vlan_id}}
+{% endfor %}
