@@ -20,19 +20,19 @@ from netmiko import ConnectHandler
 from pprint import pprint
 
 def parse_command_output(template, command_output):
-
+    result = list()
     with open(template, "r") as f:
         fsm = textfsm.TextFSM(f)
         result = fsm.ParseText(command_output)
     
-    pprint(fsm.header)
-    pprint(result)
+    return [fsm.header]+ result
+    
 
 # вызов функции должен выглядеть так
 if __name__ == "__main__":
     r1_params = {
         "device_type": "cisco_ios",
-        "host": "10.210.255.2",
+        "host": "192.168.1.34",
         "username": "cisco",
         "password": "cisco",
         "secret": "cisco",
