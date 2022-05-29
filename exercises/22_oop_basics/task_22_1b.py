@@ -63,3 +63,27 @@ topology_example = {
     ("SW1", "Eth0/2"): ("R2", "Eth0/0"),
     ("SW1", "Eth0/3"): ("R3", "Eth0/0"),
 }
+
+class Topology:
+    def __init__(self, topology_dict):
+        self.topology = self._normalize(topology_dict)
+        
+    def _normalize(self, topology_dict):
+        res = dict()
+        for dev_left, dev_rigth in topology_dict.items():
+            if  dev_rigth in res.keys():
+                continue
+            else:
+                res[dev_left]=dev_rigth
+        return res
+
+    def delete_link(self, left, right):
+        if left in self.topology.keys() and self.topology[ left] == right:
+            self.topology.pop(left)
+        elif right in self.topology.keys() and self.topology[ right] == left:
+                self.topology.pop(right)
+        else:
+            print("Такого соединения нет")
+        
+test = Topology(topology_example)
+test.delete_link( ("R1", "Eth0/0"),  ("SW1", "Eth0/1") )
