@@ -63,3 +63,93 @@ ValueError                                Traceback (most recent call last)
 ValueError: При выполнении команды "logging 0255.255.1" на устройстве 192.168.100.1 возникла ошибка -> Invalid input detected at '^' marker.
 
 """
+
+import telnetlib
+import re
+from pprint import pprint
+from textfsm import clitable
+
+class CiscoTelnet:
+    def __init__(self, ip, username, password, secret):
+        self.ip = ip
+        self.telnetSession =  telnetlib.Telnet(ip)
+        self.telnetSession.read_until(b"Username")
+        self._write_line(username)
+        self.telnetSession.read_until(b"Password")
+        self._write_line(password)
+        self.telnetSession.read_until(b">")
+        self._write_line("enable")
+        self.telnetSession.read_until(b"Password")
+        self._write_line(secret)
+        self.telnetSession.read_until(b"#")
+        self._write_line("terminal lengt 0")
+        self.telnetSession.read_until(b"#")
+        
+        
+        
+        
+    def _write_line(self, line):
+        self.telnetSession.write(line.encode("ascii") + b"\n")
+
+    def send_show_command(self, command, parse , templates="templates", index = "index" ):
+        self._write_line(command)
+        output = self.telnetSession.read_until(b"#").decode("utf-8")
+        if parse:
+            attributes = {"Command": command, "Vendor": "cisco_ios"}
+            cli_table = clitable.CliTable(index, templates)
+            cli_table.ParseCmd(output, attributes)
+            return [dict(zip(cli_table.header, row)) for row in cli_table ]
+            
+        else:
+            return output
+    def _enter_config_mode(self):
+        self._write_line("conf t")
+        return self.telnetSession.read_until(b"(config)#").decode("utf-8")
+        
+    def _exit_config_mode(self):
+        self._write_line("end")
+        return self.telnetSession.read_until(b"#").decode("utf-8")
+        
+    def _send_config_command(self, command, strict):
+        self._write_line(command)
+        output = self.telnetSession.read_until(b"#").decode("utf-8")
+        return output
+
+    def _error_in_command(self, command, result, strict):
+        regex = "% (?P<err>.+)"
+        template = (
+            'При выполнении команды "{cmd}" на устройстве {device} '
+            "возникла ошибка -> {error}"
+        )
+        error_in_cmd = re.search(regex, result)
+        if error_in_cmd:
+            message = template.format(
+                cmd=command, device=self.ip, error=error_in_cmd.group("err")
+            )
+            if strict:
+                raise ValueError(message)
+            else:
+                print(message)
+        
+    def send_config_commands(self, commands, strict = True):
+        result = self._enter_config_mode()
+        
+        if (type (commands) == str ):
+            commands = [commands]
+        
+        for command in commands:
+            result = result + self._send_config_command(command, strict=strict)
+            self._error_in_command(command, result, strict=strict)
+        
+        result = result + self._exit_config_mode()
+        
+        return result
+r1_params = {
+            'ip': '10.210.255.2',
+            'username': 'cisco',
+            'password': 'cisco',
+            'secret': 'cisco'
+            }
+   
+r1 = CiscoTelnet(**r1_params)
+pprint (r1.send_config_commands('logging 10.1.1.1', True) )
