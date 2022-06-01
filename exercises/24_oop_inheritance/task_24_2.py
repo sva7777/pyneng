@@ -26,8 +26,17 @@ from netmiko.cisco.cisco_ios import CiscoIosSSH
 
 device_params = {
     "device_type": "cisco_ios",
-    "ip": "192.168.100.1",
+    "ip": "10.210.255.2",
     "username": "cisco",
     "password": "cisco",
     "secret": "cisco",
 }
+class MyNetmiko(CiscoIosSSH):
+    def __init__(self, **device_params):
+        super().__init__(**device_params)
+        self.enable()
+
+
+if __name__ == '__main__':
+    r1 = MyNetmiko(**device_params)
+    r1.send_command('sh ip int br')
