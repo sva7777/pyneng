@@ -1,6 +1,7 @@
 import sqlite3
 import yaml
 import textfsm
+from tabulate import tabulate
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -86,4 +87,36 @@ def add_data(db_file, filename):
             result = parse_file(file)
             insert_records_into_dhcp(conn, switch_name, result)
     del_old_dhcp_record(conn, 7)    
+
+
+
+def show_table_data(conn, table_name, column_name = None, value = None):
+    # отобразить правильный заголовок
+    if column_name is None:
+        print("В таблице {} такие записи:".format(table_name) )
+    else:
+        print("Информация об устройствах с такими параметрами: {} {}".format(column_name, value) )
     
+    print("Активные записи:")
+    show_table_data_helper(conn, table_name, 1, column_name, value)
+    print("Неактивные записи:")
+    show_table_data_helper(conn, table_name, 0, column_name, value)    
+
+def show_table_data_helper(conn, table_name, active , column_name =None , value =None):
+    
+    
+    sql_query = "SELECT * from dhcp where active = ?"
+    if column_name != None :
+        sql_query = sql_query +" and " + column_name +" = ?"
+        res = conn.execute(sql_query, (active, value) )
+    else:
+        res = conn.execute(sql_query, (active,))
+        
+    print(tabulate(res))
+
+def get_data(db_file, key= None, value = None):
+    with sqlite3.connect(db_file) as conn:
+        show_table_data(conn, "dhcp", key, value)
+
+def get_all_data(db_file):
+    get_data(db_file)
